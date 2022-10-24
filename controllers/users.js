@@ -31,10 +31,7 @@ module.exports.getUserById = (req, res) => {
 module.exports.createUser = (req, res) => {
   const { name, about, avatar } = req.body;
   User.create({ name, about, avatar })
-    .then((user) => res.send({
-      data: user,
-      message: 'Пользователь успешно создан',
-    }))
+    .then((user) => res.send({ data: user }))
     .catch((e) => {
       if (e instanceof mongoose.Error.ValidationError) {
         res.status(INCORRECT_DATA_ERROR_CODE).send({ message: 'Некорректные данные имени, статуса или ссылки на аватар' });

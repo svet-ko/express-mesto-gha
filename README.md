@@ -1,7 +1,24 @@
 [![Tests](https://github.com/yandex-praktikum/express-mesto-gha/actions/workflows/tests-13-sprint.yml/badge.svg)](https://github.com/yandex-praktikum/express-mesto-gha/actions/workflows/tests-13-sprint.yml) [![Tests](https://github.com/yandex-praktikum/express-mesto-gha/actions/workflows/tests-14-sprint.yml/badge.svg)](https://github.com/yandex-praktikum/express-mesto-gha/actions/workflows/tests-14-sprint.yml)
 # Проект Mesto фронтенд + бэкенд
+Сервис Mesto - это учебная интерактивная страница, куда можно добавлять фотографии, удалять их и ставить лайки. В проекте применялись следущие технологии:
+- Создание сервера при помощи Express
+- Работа с NoSQL базой данных на примере MongoDB
+- Mongoose (создание схем и моделей)
+- Middleware
+- Использование роутов и контроллеров для структуризации кода
 
+## При помощи перечисленных технологий был реализован фунционал проекта:
 
+- Получение данных о пользователях
+- Создание пользователя
+- Обновление профиля пользователя и его аватара
+- Получение данных всех карточек пользователей
+- Создание и удаление новых пользовательских карточек
+- Возможность ставить и снимать лайк с карточки
+
+## Ссылка на репозиторий
+
+https://github.com/svet-ko/express-mesto-gha
 
 ## Настройка бейджей статуса тестов
 Перед началом работы над проектом рекомендуется исправить бейджи, отражающие статус прохождения тестов.

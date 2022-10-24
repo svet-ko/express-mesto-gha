@@ -18,7 +18,6 @@ module.exports.createCard = (req, res) => {
     .then((card) => {
       res.send({
         data: card,
-        message: 'Карточка успешно создана',
       });
     })
     .catch((e) => {

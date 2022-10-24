@@ -43,7 +43,7 @@ module.exports.createUser = (req, res) => {
 
 module.exports.updateUserProfile = (req, res) => {
   const { name, about } = req.body;
-  User.findByIdAndUpdate(req.user._id, { name, about }).orFail()
+  User.findByIdAndUpdate(req.user._id, { name, about }, { new: true }).orFail()
     .then((user) => res.send({ data: user }))
     .catch((e) => {
       if (e instanceof mongoose.Error.ValidationError || e instanceof mongoose.Error.CastError) {
@@ -60,7 +60,7 @@ module.exports.updateUserProfile = (req, res) => {
 
 module.exports.updateUserAvatar = (req, res) => {
   const { avatar } = req.body;
-  User.findByIdAndUpdate(req.user._id, { avatar }).orFail()
+  User.findByIdAndUpdate(req.user._id, { avatar }, { new: true }).orFail()
     .then((user) => res.send({ data: user }))
     .catch((e) => {
       if (e instanceof mongoose.Error.ValidationError || e instanceof mongoose.Error.CastError) {

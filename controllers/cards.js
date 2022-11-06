@@ -1,18 +1,16 @@
 const mongoose = require('mongoose');
 const Card = require('../models/card');
-const {
-  INCORRECT_DATA_ERROR_CODE,
-  NOTFOUND_ERROR_CODE,
-  SERVER_ERROR_CODE,
-} = require('../utils/constants');
+const NotFoundError = require('../utils/errors/notFoundError');
+const BadRequestError = require('../utils/errors/badRequestError');
+const ForbiddenError = require('../utils/errors/forbiddenError');
 
-module.exports.getCards = (req, res) => {
+module.exports.getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => res.send({ data: cards }))
-    .catch(() => res.status(SERVER_ERROR_CODE).send({ message: 'На сервере произошла ошибка' }));
+    .catch((e) => next(e));
 };
 
-module.exports.createCard = (req, res) => {
+module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
   Card.create({ name, link, owner: req.user._id })
     .then((card) => {
@@ -22,30 +20,36 @@ module.exports.createCard = (req, res) => {
     })
     .catch((e) => {
       if (e instanceof mongoose.Error.ValidationError) {
-        res.status(INCORRECT_DATA_ERROR_CODE).send({ message: 'Некорректные данные названия или ссылки на изображение' });
+        next(new BadRequestError('Некорректные данные названия или ссылки на изображение'));
         return;
       }
-      res.status(SERVER_ERROR_CODE).send({ message: 'На сервере произошла ошибка. Не удалось создать карточку' });
+      next(e);
     });
 };
 
-module.exports.deleteCard = (req, res) => {
-  Card.findByIdAndRemove(req.params.cardId).orFail()
-    .then((card) => res.send({ data: card }))
+module.exports.deleteCard = (req, res, next) => {
+  Card.findById(req.params.cardId).orFail()
+    .then((card) => {
+      if (card.owner.toString() === req.user._id) {
+        return card.remove()
+          .then(() => res.send({ data: card }));
+      }
+      throw new ForbiddenError('Вы не можете удалить эту карточку');
+    })
     .catch((e) => {
       if (e instanceof mongoose.Error.CastError) {
-        res.status(INCORRECT_DATA_ERROR_CODE).send({ message: 'Некорректный идентификатор карточки' });
+        next(new BadRequestError('Некорректный идентификатор карточки'));
         return;
       }
       if (e instanceof mongoose.Error.DocumentNotFoundError) {
-        res.status(NOTFOUND_ERROR_CODE).send({ message: 'Карточка с указанным идентификатором не найдена' });
+        next(new NotFoundError('Карточка с указанным идентификатором не найдена'));
         return;
       }
-      res.status(SERVER_ERROR_CODE).send({ message: 'На сервере произошла ошибка. Карточку не удалось удалить' });
+      next(e);
     });
 };
 
-module.exports.likeCard = (req, res) => {
+module.exports.likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
@@ -53,18 +57,18 @@ module.exports.likeCard = (req, res) => {
     .then((card) => res.send({ data: card }))
     .catch((e) => {
       if (e instanceof mongoose.Error.CastError) {
-        res.status(INCORRECT_DATA_ERROR_CODE).send({ message: 'Некорректный идентификатор карточки' });
+        next(new BadRequestError('Некорректный идентификатор карточки'));
         return;
       }
       if (e instanceof mongoose.Error.DocumentNotFoundError) {
-        res.status(NOTFOUND_ERROR_CODE).send({ message: 'Карточка с указанным идентификатором не найдена' });
+        next(new NotFoundError('Карточка с указанным идентификатором не найдена'));
         return;
       }
-      res.status(SERVER_ERROR_CODE).send({ message: 'На сервере произошла ошибка' });
+      next(e);
     });
 };
 
-module.exports.dislikeCard = (req, res) => {
+module.exports.dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } }, // убрать _id из массива
@@ -72,13 +76,13 @@ module.exports.dislikeCard = (req, res) => {
     .then((card) => res.send({ data: card }))
     .catch((e) => {
       if (e instanceof mongoose.Error.CastError) {
-        res.status(INCORRECT_DATA_ERROR_CODE).send({ message: 'Некорректный идентификатор карточки' });
+        next(new BadRequestError('Некорректный идентификатор карточки'));
         return;
       }
       if (e instanceof mongoose.Error.DocumentNotFoundError) {
-        res.status(NOTFOUND_ERROR_CODE).send({ message: 'Карточка с указанным идентификатором не найдена' });
+        next(new NotFoundError('Карточка с указанным идентификатором не найдена'));
         return;
       }
-      res.status(SERVER_ERROR_CODE).send({ message: 'На сервере произошла ошибка' });
+      next(e);
     });
 };

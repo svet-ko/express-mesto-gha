@@ -46,7 +46,10 @@ module.exports.createUser = async (req, res, next) => {
       email,
       password: hash,
     }))
-    .then(() => res.send({ message: 'Пользователь успешно создан' }))
+    .then((user) => {
+      const { password: p, ...data } = JSON.parse(JSON.stringify(user));
+      res.send({ data });
+    })
     .catch((e) => {
       if (e instanceof mongoose.Error.ValidationError) {
         next(new BadRequestError('Некорректные данные имени, статуса или ссылки на аватар'));

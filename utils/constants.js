@@ -5,6 +5,8 @@ const CONFLICT_ERROR_CODE = 409;
 const FORBIDDEN_ERROR_CODE = 403;
 const UNAUTHORIZED_ERROR_CODE = 401;
 
+const HTTP_REGEX = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/;
+
 module.exports = {
   INCORRECT_DATA_ERROR_CODE,
   NOTFOUND_ERROR_CODE,
@@ -12,4 +14,5 @@ module.exports = {
   CONFLICT_ERROR_CODE,
   FORBIDDEN_ERROR_CODE,
   UNAUTHORIZED_ERROR_CODE,
+  HTTP_REGEX,
 };

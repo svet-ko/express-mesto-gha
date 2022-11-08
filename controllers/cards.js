@@ -28,7 +28,7 @@ module.exports.createCard = (req, res, next) => {
 };
 
 module.exports.deleteCard = (req, res, next) => {
-  Card.findById(req.params.cardId).orFail()
+  Card.findById(req.params.cardId).orFail(() => { throw new NotFoundError('Карточка не найдена'); })
     .then((card) => {
       if (card.owner.toString() === req.user._id) {
         return card.remove()
@@ -39,10 +39,6 @@ module.exports.deleteCard = (req, res, next) => {
     .catch((e) => {
       if (e instanceof mongoose.Error.CastError) {
         next(new BadRequestError('Некорректный идентификатор карточки'));
-        return;
-      }
-      if (e instanceof mongoose.Error.DocumentNotFoundError) {
-        next(new NotFoundError('Карточка с указанным идентификатором не найдена'));
         return;
       }
       next(e);

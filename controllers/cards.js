@@ -49,8 +49,15 @@ module.exports.likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
+    {
+      new: true,
+      runValidators: true,
+    },
   ).orFail()
-    .then((card) => res.send({ data: card }))
+    .then((card) => {
+      console.log(card);
+      res.send({ data: card });
+    })
     .catch((e) => {
       if (e instanceof mongoose.Error.CastError) {
         next(new BadRequestError('Некорректный идентификатор карточки'));
@@ -68,6 +75,10 @@ module.exports.dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } }, // убрать _id из массива
+    {
+      new: true,
+      runValidators: true,
+    },
   ).orFail()
     .then((card) => res.send({ data: card }))
     .catch((e) => {

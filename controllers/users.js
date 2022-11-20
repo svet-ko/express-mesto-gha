@@ -8,6 +8,29 @@ const ConflictError = require('../utils/errors/conflictError');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
+const YOUR_JWT = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MzcyNTZjZGY1MDQxYmIxY2RmYzRmYTYiLCJpYXQiOjE2Njg5NDU1NzQsImV4cCI6MTY2OTU1MDM3NH0.xmIq98N44oFROtST7D4F7ntNB8kSYt2wIk-0CDrQYaQ'; // вставьте сюда JWT, который вернул публичный сервер
+const SECRET_KEY_DEV = 'dev-secret';// вставьте сюда секретный ключ для разработки из кода
+try {
+  const payload = jwt.verify(YOUR_JWT, SECRET_KEY_DEV);
+  console.log('\x1b[31m%s\x1b[0m', `
+    Надо исправить. В продакшне используется тот же
+    секретный ключ, что и в режиме разработки.
+  `);
+} catch (err) {
+  if (err.name === 'JsonWebTokenError' && err.message === 'invalid signature') {
+    console.log(
+      '\x1b[32m%s\x1b[0m',
+      'Всё в порядке. Секретные ключи отличаются',
+    );
+  } else {
+    console.log(
+      '\x1b[33m%s\x1b[0m',
+      'Что-то не так',
+      err,
+    );
+  }
+}
+
 module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.send({ data: users }))
@@ -65,14 +88,20 @@ module.exports.createUser = async (req, res, next) => {
 
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
+  console.log('login');
   User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', { expiresIn: '7d' });
-      res.send({ token });
+      const jwtSecretKey = NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret';
+      console.log('jwtSecretKey');
+      console.log(jwtSecretKey);
+      const token = jwt.sign({ _id: user._id }, jwtSecretKey, { expiresIn: '7d' });
+      res.send({ token, jwtSecretKey });
     })
     .catch((e) => {
       next(e);
+      console.log('error');
     });
+  console.log('end login');
 };
 
 module.exports.updateUserProfile = (req, res, next) => {
